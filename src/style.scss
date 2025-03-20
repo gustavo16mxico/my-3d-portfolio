@@ -1,0 +1,32 @@
+@use "sass:color";
+$font-stack: Arial, Helvetica, sans-serif;
+$font-lg: 24px;
+$font-md: 18px;
+$font-sm: 14px;
+$text-color: #f4f;
+
+$primary-color: #aa866a;
+$secondary-color: #40646c;
+
+$primary--color-dark: #ccab92;
+$secondary--color-dark: #66c3d3;
+* {
+  font-size: 62.5%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialised;
+  -moz-osx-font-smoothing: grayscale;
+}
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+#navigation {
+  position: fixed;
+  font-size: $font-lg;
+}
