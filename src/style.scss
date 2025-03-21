@@ -3,13 +3,32 @@ $font-stack: Arial, Helvetica, sans-serif;
 $font-lg: 24px;
 $font-md: 18px;
 $font-sm: 14px;
-$text-color: #f4f;
 
+$text--light: black;
 $primary-color: #aa866a;
-$secondary-color: #40646c;
+$bg--light: radial-gradient(
+  circle farthest-corner at center top,
+  #ecc761,
+  #8aedff
+);
+$bg--dark: radial-gradient(
+  circle farthest-corner at center top,
+  #273835,
+  #020a0c
+);
 
-$primary--color-dark: #ccab92;
-$secondary--color-dark: #66c3d3;
+$text--dark: #c2c2c2;
+$text--2--dark: #c48932;
+$brand--blue--dark: #343434;
+html[data-theme="light"] {
+  --color-text: #{$text--light};
+  --color-background: #{$bg--light};
+}
+html[data-theme="dark"] {
+  --color-text: #{$text--dark};
+  --color-background: #{$bg--dark};
+}
+
 * {
   font-size: 62.5%;
   margin: 0;
@@ -22,6 +41,10 @@ $secondary--color-dark: #66c3d3;
   -webkit-font-smoothing: antialised;
   -moz-osx-font-smoothing: grayscale;
 }
+html {
+  background: var(--color-background);
+  color: var(var(--color-text));
+}
 .container {
   width: 80%;
   margin: 0 auto;
@@ -29,4 +52,26 @@ $secondary--color-dark: #66c3d3;
 #navigation {
   position: fixed;
   font-size: $font-lg;
+}
+.btn--switch-theme {
+  width: 32px;
+  height: 32px;
+  position: fixed;
+  top: 5px;
+  right: 10px;
+}
+
+.theme--dark {
+  body {
+    background: radial-gradient(
+      circle farthest-corner at center top,
+      #273835,
+      #020a0c
+    );
+  }
+}
+.theme--light {
+  .my-div {
+    background: #ebebeb;
+  }
 }
