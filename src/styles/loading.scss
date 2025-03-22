@@ -1,7 +1,7 @@
 .cat-animation {
   width: 108px;
   height: 108px;
-  background-image: url("cat_anim.webp");
+  background-image: url("./cat_anim.webp");
   position: relative;
   -webkit-animation: playv 1s steps(12) infinite;
   animation: playv 1s steps(12) infinite;
