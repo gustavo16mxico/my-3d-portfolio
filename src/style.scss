@@ -1,11 +1,17 @@
+@use "./styles/fonts.scss";
+@use "./styles/reset.scss";
+@use "./styles/loading.scss";
 @use "sass:color";
-$font-stack: Arial, Helvetica, sans-serif;
+
+$font-stack: Sunny Spells Basic, Arial, Helvetica, sans-serif;
 $font-lg: 24px;
 $font-md: 18px;
 $font-sm: 14px;
 
 $text--light: black;
-$primary-color: #aa866a;
+$primary-color--light: #aa866a;
+
+$modal-bg: #9ab8e8;
 $bg--light: radial-gradient(
   circle farthest-corner at center top,
   #ecc761,
@@ -31,6 +37,7 @@ html[data-theme="dark"] {
 
 * {
   font-size: 62.5%;
+  font-family: $font-stack;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -44,10 +51,55 @@ html[data-theme="dark"] {
 html {
   background: var(--color-background);
   color: var(var(--color-text));
+  position: relative;
 }
 .container {
   width: 80%;
   margin: 0 auto;
+  display: none;
+
+  #canvas {
+    width: 100%;
+    height: 100%;
+  }
+}
+.loading-screen {
+  background-color: #c48932;
+  display: flex;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  font-size: 72px;
+  img {
+    width: 300px;
+    height: 337px;
+    object-fit: none;
+  }
+}
+.modal {
+  position: absolute;
+  display: none;
+  text-align: center;
+  .title {
+    font-size: $font-lg;
+  }
+  .btn-exit {
+    padding: 2px;
+    background-color: #c2c2c2;
+    font-size: $font-lg;
+    width: 32px;
+    height: 32px;
+  }
+
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: $modal-bg;
+  width: 90%;
+  height: 90%;
 }
 #navigation {
   position: fixed;
@@ -56,7 +108,7 @@ html {
 .btn--switch-theme {
   width: 32px;
   height: 32px;
-  position: fixed;
+  position: absolute;
   top: 5px;
   right: 10px;
 }

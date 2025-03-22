@@ -1,0 +1,17 @@
+.cat-animation {
+  width: 108px;
+  height: 108px;
+  background-image: url("cat_anim.webp");
+  position: relative;
+  -webkit-animation: playv 1s steps(12) infinite;
+  animation: playv 1s steps(12) infinite;
+}
+
+@-webkit-keyframes playv {
+  0% {
+    background-position-y: 0px;
+  }
+  100% {
+    background-position-y: -1296px;
+  }
+}
