@@ -60,7 +60,9 @@ const init = () => {
   const targetList = [];
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
+  let hoverStateObj = null;
   let intersectObj = [];
+
   //Texture location
   const textureLoc = {
     scene_0: {
@@ -139,6 +141,16 @@ const init = () => {
             color: "#00DBFF",
           });
           child.material = waterMat;
+        }
+        if (child.name.includes("hover")) {
+          child.userData.initialScale = new THREE.Vector3().copy(child.scale);
+          child.userData.initialPosition = new THREE.Vector3().copy(
+            child.position
+          );
+          child.userData.initialRotation = new THREE.Euler().copy(
+            child.rotation
+          );
+          child.userData.isHover = false;
         }
         if (child.name.includes("base")) {
           const baseMat = new THREE.MeshBasicMaterial({ color: 0x555555 });
@@ -246,6 +258,28 @@ const init = () => {
     -2.667293567183144
   );
 
+  // Helper functions
+  const hoverAnim = (raycastObj, isHover) => {
+    gsap.killTweensOf(raycastObj.scale);
+    if (isHover) {
+      raycastObj.userData.isHover = isHover;
+      gsap.to(raycastObj.scale, {
+        x: raycastObj.userData.initialScale.x * 1.2,
+        y: raycastObj.userData.initialScale.y * 1.2,
+        z: raycastObj.userData.initialScale.z * 1.2,
+        duration: 0.5,
+        ease: "elastic.out(1.2)",
+      });
+    } else {
+      raycastObj.userData.isHover = false;
+      gsap.to(raycastObj.scale, {
+        x: raycastObj.userData.initialScale.x,
+        y: raycastObj.userData.initialScale.y,
+        z: raycastObj.userData.initialScale.z,
+        duration: 0.3,
+      });
+    }
+  };
   // Renderer animation
   renderer.setAnimationLoop(() => {
     fanList.forEach((fan) => (fan.rotation.y += 0.02));
@@ -257,30 +291,14 @@ const init = () => {
   document.body.appendChild(renderer.domElement);
 
   // Events
-
   window.addEventListener("mousemove", (event) => {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(pointer, camera);
 
-    // calculate objects intersecting the picking ray
-    intersectObj = raycaster.intersectObjects(targetList);
+    interactionMove();
   });
-  Object.values(modals).forEach((modal) =>
-    modal.addEventListener("click", () => {
-      if (intersectObj.length > 0) {
-        const children = intersectObj[i].object.children;
-        if (intersectObj[0].object.name.includes("target")) {
-          document.body.style.cursor = "pointer";
-        } else {
-          document.body.style.cursor = "default";
-        }
-      } else {
-        document.body.style.cursor = "default";
-      }
-    })
-  );
 
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -309,6 +327,44 @@ const init = () => {
           break;
       }
     }
+  });
+
+  function interactionMove() {
+    // calculate objects intersecting the picking ray
+    intersectObj = raycaster.intersectObjects(targetList);
+
+    if (intersectObj.length > 0) {
+      const currObj = intersectObj[0].object;
+
+      if (currObj.name.includes("hover")) {
+        if (hoverStateObj !== null) {
+          if (hoverStateObj.userData.isHover) return;
+          if (hoverStateObj !== currObj) hoverAnim(hoverStateObj, false);
+        }
+        hoverStateObj = currObj;
+        hoverAnim(hoverStateObj, true);
+      }
+
+      if (currObj.name.includes("target")) {
+        document.body.style.cursor = "pointer";
+      } else {
+        document.body.style.cursor = "default";
+      }
+    } else {
+      if (hoverStateObj) {
+        hoverAnim(hoverStateObj, false);
+        hoverStateObj = null;
+      }
+      document.body.style.cursor = "default";
+    }
+  }
+
+  window.addEventListener("touchmove", (event) => {
+    pointer.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(pointer, camera);
+    interactionMove();
   });
 
   document
