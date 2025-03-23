@@ -19,10 +19,10 @@ $bg--light: radial-gradient(
 );
 $bg--dark: radial-gradient(
   circle farthest-corner at center top,
-  #273835,
-  #020a0c
+  #000000,
+  #0b2a31
 );
-
+$text--load-color: #222324;
 $text--dark: #c2c2c2;
 $text--2--dark: #c48932;
 $brand--blue--dark: #343434;
@@ -53,31 +53,31 @@ html {
   color: var(var(--color-text));
   position: relative;
 }
-.container {
-  width: 80%;
-  margin: 0 auto;
-  display: none;
 
-  #canvas {
-    width: 100%;
-    height: 100%;
-  }
-}
-.loading-screen {
+.loading--screen {
   background-color: #c48932;
   display: flex;
-  position: absolute;
+  position: fixed;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
-  z-index: 9999;
   font-size: 72px;
-  img {
-    width: 300px;
-    height: 337px;
-    object-fit: none;
+  p {
+    filter: blur(0.5px);
+    color: $text--load-color;
   }
+}
+.loading--bar {
+  position: absolute;
+  height: 4px;
+  width: 100%;
+  top: 70%;
+  left: 0;
+  background-color: $text--load-color;
+  transform: scaleX(0);
+  transform-origin: top left;
+  transition: transforn 0.5s;
 }
 .modal {
   position: absolute;
@@ -108,17 +108,18 @@ html {
 .btn--switch-theme {
   width: 32px;
   height: 32px;
-  position: absolute;
+  position: fixed;
   top: 5px;
   right: 10px;
+  opacity: 0;
 }
 
 .theme--dark {
   body {
     background: radial-gradient(
       circle farthest-corner at center top,
-      #273835,
-      #020a0c
+      #000000,
+      #0f353f
     );
   }
 }

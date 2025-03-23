@@ -1,21 +1,45 @@
 import "./style.scss";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { OrbitControls } from "./utils/OrbitControls.js";
 import * as THREE from "three";
 import gsap from "gsap";
 const init = () => {
+  const vertexGlsl = `
+    varying vec2 vUv;
+    void main() {
+    	vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+    }`;
+  const fragmentGlsl = `  	
+    uniform sampler2D t1;
+    uniform sampler2D t2;
+    uniform float transition;
+    varying vec2 vUv;
+    void main(){
+    	vec4 tex1 = texture2D(t1, vUv);
+      vec4 tex2 = texture2D(t2, vUv);
+      
+      gl_FragColor = mix(tex1, tex2, transition);
+    
+    }`;
+  // DOM helper functions
+  const get = document.getElementById.bind(document);
+  const getClass = document.getElementsByClassName.bind(document);
+  const query = document.querySelector.bind(document);
   // Getting elements from DOM
-  const modals = {
-    acerca: document.querySelector(".modal.acerca"),
-    experiencia: document.querySelector(".modal.experiencia"),
-    contacto: document.querySelector(".modal.contacto"),
-  };
-  const loadingScreen = document.getElementsByClassName("loading-screen")[0];
 
-  const canvas = document.getElementById("canvas");
-  const darkButton = document.getElementsByClassName("btn--switch-theme")[0];
-  const video = document.getElementById("video");
+  const modals = {
+    acerca: query(".modal.acerca"),
+    experiencia: query(".modal.experiencia"),
+    contacto: query(".modal.contacto"),
+  };
+  const app = getClass("app")[0];
+  const loadingScreen = getClass("loading--screen")[0];
+  const loadingBar = getClass("loading--bar")[0];
+  const canvas = get("canvas");
+  const darkButton = getClass("btn--switch-theme")[0];
+  const video = get("video");
   let theme = localStorage.getItem("theme");
   // Storage
   // Adding dark theme
@@ -34,6 +58,7 @@ const init = () => {
   const showModal = (modal) => {
     raycaster.layers.disableAll();
     modal.style.display = "block";
+    controls.enabled = false;
     gsap.set(modal, { opacity: 0 });
     gsap.to(modal, {
       opacity: 1,
@@ -41,6 +66,7 @@ const init = () => {
     });
   };
   const hideModal = (modal) => {
+    controls.enabled = true;
     gsap.to(modal, {
       opacity: 0,
       duration: 0.5,
@@ -74,24 +100,60 @@ const init = () => {
       night: "/textures/scene_night_002.webp",
     },
   };
-  const textures = {
-    scene_0: {},
-    scene_1: {},
+
+  const sceneMaterial = {
+    scene_0: {
+      day: {},
+      night: {},
+    },
+    scene_1: {
+      day: {},
+      night: {},
+    },
   };
-
+  const sceneObjs = {
+    scene_0: [],
+    scene_1: [],
+  };
   // Loading textures
-  const textLoader = new THREE.TextureLoader();
-  Object.keys(textureLoc).forEach((key) => {
-    const textDay = textLoader.load(textureLoc[key].day);
-    textDay.flipY = false;
-    textDay.colorSpace = THREE.SRGBColorSpace;
-    textures[key].day = textDay;
 
-    const textNight = textLoader.load(textureLoc[key].night);
-    textNight.flipY = false;
-    textNight.colorSpace = THREE.SRGBColorSpace;
-    textures[key].night = textNight;
-  });
+  let manager = new THREE.LoadingManager();
+  manager.onLoad = () => {
+    if (theme === "light") {
+      material.scene_0.uniforms.t1.value = textures.scene_0[0];
+      material.scene_0.uniforms.t2.value = textures.scene_0[1];
+      material.scene_1.uniforms.t1.value = textures.scene_1[0];
+      material.scene_1.uniforms.t2.value = textures.scene_1[1];
+    } else {
+      material.scene_0.uniforms.t1.value = textures.scene_0[1];
+      material.scene_0.uniforms.t2.value = textures.scene_0[0];
+      material.scene_1.uniforms.t1.value = textures.scene_1[1];
+      material.scene_1.uniforms.t2.value = textures.scene_1[0];
+    }
+  };
+  let tLoader = new THREE.TextureLoader(manager);
+  let textures = {
+    scene_0: [
+      tLoader.load("/textures/inverted/scene_day_001.webp"),
+      tLoader.load("/textures/inverted/scene_night_001.webp"),
+    ],
+    scene_1: [
+      tLoader.load("/textures/inverted/scene_day_002.webp"),
+      tLoader.load("/textures/inverted/scene_night_002.webp"),
+    ],
+  };
+  // Object.keys(textureLoc).forEach((key) => {
+  //   const textDay = textLoader.load(textureLoc[key].day);
+  //   textDay.flipY = false;
+  //   textDay.colorSpace = THREE.SRGBColorSpace;
+  //   textures[key].day = textDay;
+  //   sceneMaterial[key].day = new THREE.MeshBasicMaterial({ map: textDay });
+  //   const textNight = textLoader.load(textureLoc[key].night);
+  //   textNight.flipY = false;
+  //   textNight.colorSpace = THREE.SRGBColorSpace;
+  //   textures[key].night = textNight;
+  //   sceneMaterial[key].night = new THREE.MeshBasicMaterial({ map: textNight });
+  // });
   // Environment Map
   const envMap = new THREE.TextureLoader()
     .setPath("environment/")
@@ -105,6 +167,26 @@ const init = () => {
   gltfLoader.setDRACOLoader(dracoLoader); // Load a glTF resource
 
   // gltf materials
+  let material = {
+    scene_0: new THREE.ShaderMaterial({
+      uniforms: {
+        t1: { value: null },
+        t2: { value: null },
+        transition: { value: 0 },
+      },
+      vertexShader: vertexGlsl,
+      fragmentShader: fragmentGlsl,
+    }),
+    scene_1: new THREE.ShaderMaterial({
+      uniforms: {
+        t1: { value: null },
+        t2: { value: null },
+        transition: { value: 0 },
+      },
+      vertexShader: vertexGlsl,
+      fragmentShader: fragmentGlsl,
+    }),
+  };
 
   const fanMat = new THREE.MeshBasicMaterial({ color: "#99ccfb" }); //base mat
   const glassMat = new THREE.MeshPhysicalMaterial({
@@ -156,7 +238,7 @@ const init = () => {
           const baseMat = new THREE.MeshBasicMaterial({ color: 0x555555 });
           child.material = baseMat;
         }
-        if (child.name.includes("text") || child.name.includes("name")) {
+        if (child.name.includes("text")) {
           const baseMat = new THREE.MeshBasicMaterial({ visible: false }); //base mat
           const material = new THREE.MeshBasicMaterial({ color: "white" }); //base mat
 
@@ -164,6 +246,10 @@ const init = () => {
           if (child.children.length > 0) {
             child.children[0].material = material;
           }
+        }
+        if (child.name.includes("name")) {
+          const baseMat = new THREE.MeshBasicMaterial({ color: "white" }); //base mat
+          child.material = baseMat;
         }
         if (child.name.includes("fan") && child.name != "top_fan_scene_0") {
           child.material = fanMat;
@@ -175,11 +261,13 @@ const init = () => {
           }
           Object.keys(textures).forEach((key) => {
             if (child.name.includes(key)) {
-              const material = new THREE.MeshBasicMaterial({
-                map:
-                  theme === "light" ? textures[key].day : textures[key].night,
-              });
-              child.material = material;
+              sceneObjs[key].push(child);
+              // child.material =
+              //   theme === "light"
+              //     ? sceneMaterial[key].day
+              //     : sceneMaterial[key].night;
+              child.material = material[key];
+
               if (child.material.map) {
                 child.material.map.minFilter = THREE.LinearFilter;
               }
@@ -209,10 +297,14 @@ const init = () => {
         duration: 1,
         onComplete: () => (loadingScreen.style.display = "none"),
       });
+      app.style.display = "revert";
+      darkButton.style.opacity = "1";
     },
 
     // Loading process
     function (xhr) {
+      loadingBar.style.transform = `scaleX(${(xhr.loaded / xhr.total) * 100})`;
+
       console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
     },
     // Error logging
@@ -245,13 +337,12 @@ const init = () => {
 
   // Orbit Controls and settings
   const controls = new OrbitControls(camera, renderer.domElement);
-
-  controls.maxTargetRadius = Math.PI;
   controls.maxPolarAngle = Math.PI / 2;
-  controls.minPolarAngle = Math.PI / 4;
-  controls.maxZoom = 2;
-  controls.minZoom = 1;
-  controls.maxDistance = 3;
+  controls.minPolarAngle = 0;
+  controls.minAzimuthAngle = 0;
+  controls.maxAzimuthAngle = Math.PI / 2;
+  controls.minDistance = 3;
+  controls.maxDistance = 7;
   controls.target.set(
     -1.4689363583900092,
     1.366318717884619,
@@ -370,11 +461,78 @@ const init = () => {
   document
     .querySelector("input[name=theme_switch]")
     .addEventListener("change", (cb) => {
+      if (!cb.target.checked) {
+        startSequenceNight();
+      } else {
+        startSequenceDay();
+      }
       localStorage.setItem("theme", cb.target.checked ? "dark" : "light");
       document.documentElement.setAttribute(
         "data-theme",
         cb.target.checked ? "dark" : "light"
       );
     });
+  function startSequenceNight() {
+    gsap.fromTo(
+      material.scene_0.uniforms.transition,
+      { value: 1 },
+      {
+        value: 0,
+        duration: 1,
+        // repeat: -1,
+        // repeatRefresh: true,
+        onRepat: () => {
+          material.scene_0.uniforms.t1.value = textures.scene_0[0];
+          material.scene_0.uniforms.t2.value = textures.scene_0[1];
+        },
+      }
+    );
+
+    gsap.fromTo(
+      material.scene_1.uniforms.transition,
+      { value: 1 },
+      {
+        value: 0,
+        duration: 1,
+        // repeat: -1,
+        // repeatRefresh: true,
+        onRepat: () => {
+          material.scene_1.uniforms.t1.value = textures.scene_1[0];
+          material.scene_1.uniforms.t2.value = textures.scene_1[1];
+        },
+      }
+    );
+  }
+  function startSequenceDay() {
+    gsap.fromTo(
+      material.scene_0.uniforms.transition,
+      { value: 0 },
+      {
+        value: 1,
+        duration: 1,
+        // repeat: -1,
+        // repeatRefresh: true,
+        onRepat: () => {
+          material.scene_0.uniforms.t1.value = textures.scene_0[0];
+          material.scene_0.uniforms.t2.value = textures.scene_0[1];
+        },
+      }
+    );
+
+    gsap.fromTo(
+      material.scene_1.uniforms.transition,
+      { value: 0 },
+      {
+        value: 1,
+        duration: 1,
+        // repeat: -1,
+        // repeatRefresh: true,
+        onRepat: () => {
+          material.scene_1.uniforms.t1.value = textures.scene_1[0];
+          material.scene_1.uniforms.t2.value = textures.scene_1[1];
+        },
+      }
+    );
+  }
 };
 init();
