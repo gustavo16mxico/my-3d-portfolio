@@ -28,37 +28,65 @@ const init = () => {
   const getClass = document.getElementsByClassName.bind(document);
   const query = document.querySelector.bind(document);
   // Getting elements from DOM
+  const sound_icon = getClass("icon--sound")[0];
 
   const modals = {
     acerca: query(".modal.acerca"),
     experiencia: query(".modal.experiencia"),
     contacto: query(".modal.contacto"),
   };
+  const closeModal = {
+    acerca: query(".modal.acerca .modal--content .btn-exit"),
+    experiencia: query(".modal.experiencia .modal--content .btn-exit"),
+    contacto: query(".modal.contacto .modal--content .btn-exit"),
+  };
+  const audioBtn = getClass("btn--sound-switch")[0];
   const app = getClass("app")[0];
   const loadingScreen = getClass("loading--screen")[0];
   const loadingBar = getClass("loading--bar")[0];
   const canvas = get("canvas");
   const darkButton = getClass("btn--switch-theme")[0];
-  const video = get("video");
-  let theme = localStorage.getItem("theme");
+  const video = query("video");
+  video.play();
+  video.addEventListener(
+    "play",
+    function () {
+      this.currentTime = 3;
+    },
+    false
+  );
+  const localSettings = {
+    theme: localStorage.getItem("theme"),
+    sound: localStorage.getItem("sound"),
+  };
+
   // Storage
-  // Adding dark theme
+  // Adding dark theme and sound
   const initialStorage = () => {
-    if (!theme) {
+    if (!localSettings.theme) {
       localStorage.setItem("theme", "light");
       document.documentElement.setAttribute("data-theme", "light");
-      theme = "light";
+      localSettings.theme = "light";
     } else {
-      document.documentElement.setAttribute("data-theme", theme);
-      if (theme === "dark") darkButton.checked = true;
+      document.documentElement.setAttribute("data-theme", localSettings.theme);
+      if (localSettings.theme === "dark") darkButton.checked = true;
+    }
+    if (!localSettings.sound) {
+      localStorage.setItem("sound", "true");
+      document.documentElement.setAttribute("data-sound", "true");
+      audioBtn.checked = true;
+    } else {
+      document.documentElement.setAttribute("data-sound", localSettings.sound);
+      if (localSettings.sound === "true") audioBtn.checked = true;
+      else audioBtn.checked = false;
     }
   };
   initialStorage();
 
   const showModal = (modal) => {
     raycaster.layers.disableAll();
-    modal.style.display = "block";
     controls.enabled = false;
+    modal.style.display = "block";
     gsap.set(modal, { opacity: 0 });
     gsap.to(modal, {
       opacity: 1,
@@ -66,13 +94,13 @@ const init = () => {
     });
   };
   const hideModal = (modal) => {
-    controls.enabled = true;
     gsap.to(modal, {
       opacity: 0,
-      duration: 0.5,
+      duration: 0.7,
       onComplete: () => {
         raycaster.layers.enableAll();
         modal.style.display = "none";
+        controls.enabled = true;
       },
     });
   };
@@ -82,6 +110,7 @@ const init = () => {
 
   // Useful variables
   // fan array
+
   const fanList = [];
   const targetList = [];
   const raycaster = new THREE.Raycaster();
@@ -89,28 +118,6 @@ const init = () => {
   let hoverStateObj = null;
   let intersectObj = [];
 
-  //Texture location
-  const textureLoc = {
-    scene_0: {
-      day: "/textures/scene_day_001.webp",
-      night: "/textures/scene_night_001.webp",
-    },
-    scene_1: {
-      day: "/textures/scene_day_002.webp",
-      night: "/textures/scene_night_002.webp",
-    },
-  };
-
-  const sceneMaterial = {
-    scene_0: {
-      day: {},
-      night: {},
-    },
-    scene_1: {
-      day: {},
-      night: {},
-    },
-  };
   const sceneObjs = {
     scene_0: [],
     scene_1: [],
@@ -119,7 +126,7 @@ const init = () => {
 
   let manager = new THREE.LoadingManager();
   manager.onLoad = () => {
-    if (theme === "light") {
+    if (localSettings.theme === "light") {
       material.scene_0.uniforms.t1.value = textures.scene_0[0];
       material.scene_0.uniforms.t2.value = textures.scene_0[1];
       material.scene_1.uniforms.t1.value = textures.scene_1[0];
@@ -142,18 +149,7 @@ const init = () => {
       tLoader.load("/textures/inverted/scene_night_002.webp"),
     ],
   };
-  // Object.keys(textureLoc).forEach((key) => {
-  //   const textDay = textLoader.load(textureLoc[key].day);
-  //   textDay.flipY = false;
-  //   textDay.colorSpace = THREE.SRGBColorSpace;
-  //   textures[key].day = textDay;
-  //   sceneMaterial[key].day = new THREE.MeshBasicMaterial({ map: textDay });
-  //   const textNight = textLoader.load(textureLoc[key].night);
-  //   textNight.flipY = false;
-  //   textNight.colorSpace = THREE.SRGBColorSpace;
-  //   textures[key].night = textNight;
-  //   sceneMaterial[key].night = new THREE.MeshBasicMaterial({ map: textNight });
-  // });
+
   // Environment Map
   const envMap = new THREE.TextureLoader()
     .setPath("environment/")
@@ -262,10 +258,6 @@ const init = () => {
           Object.keys(textures).forEach((key) => {
             if (child.name.includes(key)) {
               sceneObjs[key].push(child);
-              // child.material =
-              //   theme === "light"
-              //     ? sceneMaterial[key].day
-              //     : sceneMaterial[key].night;
               child.material = material[key];
 
               if (child.material.map) {
@@ -303,7 +295,7 @@ const init = () => {
 
     // Loading process
     function (xhr) {
-      loadingBar.style.transform = `scaleX(${(xhr.loaded / xhr.total) * 100})`;
+      loadingBar.style.transform = `scaleX(${xhr.loaded / xhr.total})`;
 
       console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
     },
@@ -326,6 +318,33 @@ const init = () => {
     1.3981027631600826,
     -1.7862633770308336
   );
+  // AUDIO
+
+  const listener = new THREE.AudioListener();
+  const sound = new THREE.Audio(listener);
+
+  const audioLoader = new THREE.AudioLoader();
+
+  //Load a sound and set it as the Audio object's buffer
+  audioLoader.load(
+    "sounds/ChasingDaylight.ogg",
+    function (buffer) {
+      sound.setBuffer(buffer);
+      sound.setLoop(true);
+      sound.setVolume(0.5);
+      sound.play();
+      if (localSettings.sound === "false") sound.pause();
+    },
+    // onProgress callback
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+
+    // onError callback
+    function (err) {
+      console.log("Un error ha ocurrido" + err);
+    }
+  );
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -341,8 +360,8 @@ const init = () => {
   controls.minPolarAngle = 0;
   controls.minAzimuthAngle = 0;
   controls.maxAzimuthAngle = Math.PI / 2;
-  controls.minDistance = 3;
-  controls.maxDistance = 7;
+  controls.minDistance = -3;
+  controls.maxDistance = 6;
   controls.target.set(
     -1.4689363583900092,
     1.366318717884619,
@@ -382,6 +401,7 @@ const init = () => {
   document.body.appendChild(renderer.domElement);
 
   // Events
+
   window.addEventListener("mousemove", (event) => {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -397,8 +417,12 @@ const init = () => {
     camera.updateProjectionMatrix();
   });
   window.addEventListener("click", (e) => {
-    if (e.target.classList.contains("btn-exit"))
-      hideModal(e.target.parentElement);
+    if (e.target === modals.acerca || e.target === closeModal.acerca)
+      hideModal(modals.acerca);
+    if (e.target === modals.experiencia || e.target === closeModal.experiencia)
+      hideModal(modals.experiencia);
+    if (e.target === modals.contacto || e.target === closeModal.contacto)
+      hideModal(modals.contacto);
     if (
       intersectObj.length > 0 &&
       intersectObj[0].object.name.includes("text")
@@ -456,6 +480,19 @@ const init = () => {
 
     raycaster.setFromCamera(pointer, camera);
     interactionMove();
+  });
+  audioBtn.addEventListener("change", (e) => {
+    document.documentElement.setAttribute(
+      "data-sound",
+      e.target.checked ? "true" : "false"
+    );
+    if (e.target.checked) {
+      localStorage.setItem("sound", "true");
+      sound.play();
+    } else {
+      localStorage.setItem("sound", "false");
+      sound.pause();
+    }
   });
 
   document

@@ -17,24 +17,136 @@
     </div>
     <div class="app" style="display: none">
       <nav id="navigation">
-        <input class="btn--switch-theme" type="checkbox" name="theme_switch" />
+        <label class="icon--theme-change" for="theme_switch">
+          <svg
+            class="light--icon"
+            version="1.1"
+            viewBox="0 0 32 32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m18.98 1.3164c-0.91526 0.055766-1.5232 2.649-2.2148 4.7129a10 10 0 0 0-0.76562-0.029297 10 10 0 0 0-2.8223 0.40625c-1.16-1.9672-2.3519-4.5223-3.2793-4.1094-0.92737 0.41289 0.17557 3.0072 0.86133 5.1855a10 10 0 0 0-2.6816 2.416c-2.0947-0.9097-4.5608-2.2776-5.0684-1.3984s1.909 2.3302 3.7441 3.6895a10 10 0 0 0-0.75 3.5312c-2.2294 0.49529-5.028 0.83809-4.9219 1.8477 0.10611 1.0096 2.9156 0.76225 5.1992 0.7832a10 10 0 0 0 1.4668 3.2969c-1.5125 1.7111-3.5738 3.6343-2.8945 4.3887 0.67925 0.75439 2.8062-1.0965 4.666-2.4219a10 10 0 0 0 3.125 1.8047c-0.21787 2.2733-0.75662 5.0409 0.23633 5.252 0.99295 0.21106 1.6279-2.5358 2.3535-4.7012a10 10 0 0 0 0.76562 0.029297 10 10 0 0 0 2.8223-0.40625c1.16 1.9672 2.3519 4.5223 3.2793 4.1094 0.92737-0.41289-0.17557-3.0072-0.86133-5.1855a10 10 0 0 0 2.6816-2.416c2.0947 0.9097 4.5608 2.2776 5.0684 1.3984s-1.909-2.3302-3.7441-3.6895a10 10 0 0 0 0.75-3.5312c2.2294-0.49529 5.028-0.83809 4.9219-1.8477-0.10611-1.0096-2.9156-0.76225-5.1992-0.7832a10 10 0 0 0-1.4668-3.2969c1.5125-1.7111 3.5738-3.6343 2.8945-4.3887-0.67925-0.75439-2.8062 1.0965-4.666 2.4219a10 10 0 0 0-3.125-1.8047c0.21787-2.2733 0.75662-5.0409-0.23633-5.252-0.046545-0.0098933-0.093659-0.014461-0.13867-0.011719z"
+              style="paint-order: markers stroke fill"
+            />
+          </svg>
+          <svg
+            class="dark--icon"
+            version="1.1"
+            viewBox="0 0 32 32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m22.211 1.9023c-0.43102 0.027508-0.61547 1.7875-1.0098 1.9824-0.40055 0.19805-1.9533-0.75656-2.2012-0.38477s1.2299 1.4389 1.2012 1.8848-1.6316 1.3123-1.4336 1.7129c0.19805 0.40055 1.8606-0.34552 2.2324-0.097656s0.32166 2.0689 0.76758 2.0977c0.44592 0.028758 0.6307-1.7844 1.0312-1.9824 0.40055-0.19805 1.9533 0.75656 2.2012 0.38477s-1.2299-1.4389-1.2012-1.8848 1.6316-1.3123 1.4336-1.7129c-0.19805-0.40055-1.8606 0.34552-2.2324 0.097656s-0.32166-2.0689-0.76758-2.0977c-0.006968-4.494e-4 -0.014643-4.367e-4 -0.021484 0zm-13.01 1.2988c-3.3053 1e-7 -11.314 11.313-1.4141 21.213 9.8995 9.8995 21.213 1.8912 21.213-1.4141-9e-6 -3.3052-6.3646-2.1205-12.021-7.7773-5.6569-5.6569-4.4721-12.021-7.7773-12.021zm17.127 8.4414c-0.25848 0.016496-0.36902 1.0725-0.60547 1.1895-0.2402 0.11877-1.1717-0.45343-1.3203-0.23047-0.14864 0.22296 0.73795 0.8615 0.7207 1.1289-0.017246 0.2674-0.97814 0.78909-0.85938 1.0293 0.11877 0.2402 1.1149-0.20918 1.3379-0.060547 0.22296 0.14864 0.19353 1.2425 0.46094 1.2598 0.26741 0.017246 0.37698-1.0707 0.61719-1.1895 0.2402-0.11877 1.1717 0.45343 1.3203 0.23047s-0.73795-0.8615-0.7207-1.1289c0.017246-0.26741 0.97814-0.78909 0.85938-1.0293-0.11877-0.2402-1.1149 0.20723-1.3379 0.058594-0.22296-0.14864-0.19353-1.2406-0.46094-1.2578-0.004178-2.69e-4 -0.007616-2.62e-4 -0.011719 0z"
+              style="paint-order: markers stroke fill"
+            />
+          </svg>
+        </label>
+        <input
+          class="btn--switch-theme"
+          type="checkbox"
+          id="theme_switch"
+          name="theme_switch"
+        />
+        <label class="icon--sound" for="sound_switch">
+          <svg
+            class="sound--icon"
+            version="1.1"
+            viewBox="0 0 32 32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="m15 6v20a0.50674 0.50674 26.873 0 0 0.8064 0.40864l6.6936-4.9086h3a2.5 2.5 135 0 0 2.5-2.5v-5.5a3 3 45 0 0-3-3h-1.8011a2.1348 2.1348 18.127 0 1-1.2625-0.4133l-6.13-4.4953a0.50674 0.50674 153.13 0 0-0.8064 0.40864z"
+                stroke-opacity=".9686"
+                stroke-width="1.4158"
+                style="paint-order: markers stroke fill"
+              />
+              <g fill="none">
+                <path
+                  d="m9 10s-3 2-3 7 3 7 3 7"
+                  style="paint-order: markers stroke fill"
+                />
+                <path
+                  d="m10.967 12.41s-1.9672 1.3115-1.9672 4.5902 1.9672 4.5902 1.9672 4.5902"
+                  style="paint-order: markers stroke fill"
+                />
+                <path
+                  d="m12.857 15s-0.85714 0.57143-0.85714 2 0.85714 2 0.85714 2"
+                  style="paint-order: markers stroke fill"
+                />
+              </g>
+            </g>
+          </svg>
+
+          <svg
+            class="noSound--icon"
+            version="1.1"
+            viewBox="0 0 32 32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="m15 6v20a0.50674 0.50674 26.873 0 0 0.8064 0.40864l6.6936-4.9086h3a2.5 2.5 135 0 0 2.5-2.5v-5.5a3 3 45 0 0-3-3h-1.8011a2.1348 2.1348 18.127 0 1-1.2625-0.4133l-6.13-4.4953a0.50674 0.50674 153.13 0 0-0.8064 0.40864z"
+                stroke-opacity=".9686"
+                stroke-width="1.4173"
+                style="paint-order: markers stroke fill"
+              />
+              <path
+                d="m5 5 22 22"
+                fill="none"
+                stroke="#ff726c"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8898"
+                style="paint-order: markers stroke fill"
+              />
+            </g>
+          </svg>
+        </label>
+        <input
+          class="btn--sound-switch"
+          type="checkbox"
+          id="sound_switch"
+          name="sound_switch"
+        />
+        <!-- <audio autoplay="autoplay">
+          <source src="sounds/ChasingDaylight.ogg" />
+        </audio> -->
       </nav>
 
       <div class="modal acerca">
-        <h1 class="title">Acerca de mi</h1>
-        <button class="btn-exit">X</button>
+        <div class="modal--content">
+          <h1 class="title">Acerca de mi</h1>
+          <p>
+            Mi nombre es Gustavo Antonio Carrillo Esquivel. Soy un Disenador
+            Web, Ilustrador y modelador 3D.
+          </p>
+          <button class="btn-exit"></button>
+        </div>
       </div>
       <div class="modal experiencia">
-        <h1 class="title">Mi experiencia</h1>
-        <button class="btn-exit">X</button>
+        <div class="modal--content">
+          <h1 class="title">Mi experiencia</h1>
+          <button class="btn-exit"></button>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quod iure
+            tempora sapiente, nemo maxime tenetur error ipsa dicta? Ab cum
+            tempora, vero molestiae quas deserunt fugiat quis. Cumque, eius
+            maxime.
+          </p>
+        </div>
       </div>
       <div class="modal contacto">
-        <h1 class="title">Contacto</h1>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima culpa
-        voluptatum dolor placeat iure voluptas sequi! Soluta at accusantium
-        tempora in culpa ab aperiam, odio quod minima architecto, cumque
-        numquam?
-        <button class="btn-exit">X</button>
+        <div class="modal--content">
+          <h1 class="title">Contacto</h1>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima
+            culpa voluptatum dolor placeat iure voluptas sequi! Soluta at
+            accusantium tempora in culpa ab aperiam, odio quod minima
+            architecto, cumque numquam?
+          </p>
+          <button class="btn-exit"></button>
+        </div>
       </div>
       <main class="container">
         <video
